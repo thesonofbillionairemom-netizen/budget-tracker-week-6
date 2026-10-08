@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpendWise | Smart Expense Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#12b886" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="6" width="20" height="14" rx="3"/>
+        <path d="M2 10h20"/>
+        <circle cx="17" cy="15" r="1.5"/>
+      </svg>
+      <h1 class="logo">Spend<span>Wise</span></h1>
+    </div>
+    <div class="actions">
+      <button id="themeBtn" class="icon-btn" type="button" aria-pressed="false" title="Switch theme">
+        <span id="themeIcon" aria-hidden="true">🌙</span>
+        <span class="sr-only">Toggle dark theme</span>
+      </button>
+      <button id="budgetBtn" class="btn" type="button">Set budget</button>
+      <button id="profileBtn" class="profile" type="button" title="Profile">
+        <span id="avatar" aria-hidden="true">👤</span>
+        <span id="userName">Guest</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="card">
+      <h2>Add expense</h2>
+      <form id="form" novalidate>
+        <label>Name
+          <input id="item" placeholder="e.g. Groceries" maxlength="40" autocomplete="off" aria-describedby="itemError">
+          <small class="error" id="itemError" aria-live="polite"></small>
+        </label>
+        <label>Amount (KES)
+          <input id="amount" type="number" min="1" step="0.01" placeholder="0" inputmode="decimal" aria-describedby="amountError">
+          <small class="error" id="amountError" aria-live="polite"></small>
+        </label>
+        <label>Category
+          <select id="category"></select>
+        </label>
+        <label>Date
+          <input id="date" type="date" aria-describedby="dateError">
+          <small class="error" id="dateError" aria-live="polite"></small>
+        </label>
+        <button class="btn" type="submit">Add expense</button>
+      </form>
+    </aside>
+
+    <main>
+      <section class="hero">
+        <p>Remaining balance</p>
+        <h2 id="left">KES 0</h2>
+        <div class="track"><div id="bar" class="bar"></div></div>
+        <p id="msg" aria-live="polite">Click "Set budget" to begin.</p>
+      </section>
+
+      <section class="stats">
+        <div class="card"><span>Budget</span><strong id="budget">KES 0</strong></div>
+        <div class="card"><span>Total spent</span><strong id="spent">KES 0</strong></div>
+        <div class="card"><span>Transactions</span><strong id="count">0</strong></div>
+      </section>
+
+      <section class="split">
+        <div class="card">
+          <h2>Spending by category</h2>
+          <ul id="breakdown" class="breakdown"></ul>
+        </div>
+        <div class="card">
+          <h2>Insights</h2>
+          <ul id="insights" class="insights"></ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Recent transactions</h2>
+          <div class="toolbar">
+            <label class="sr-only" for="filter">Filter by category</label>
+            <select id="filter"></select>
+            <label class="sr-only" for="sort">Sort transactions</label>
+            <select id="sort">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="highest">Highest amount</option>
+              <option value="lowest">Lowest amount</option>
+            </select>
+            <button id="clearBtn" class="btn-link" type="button">Clear all</button>
+          </div>
+        </div>
+        <p id="tableCount" class="muted" aria-live="polite"></p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Amount</th><th>Category</th><th>Date</th><th><span class="sr-only">Actions</span></th></tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Smart budgeting tips</h2>
+        <div class="video">
+          <iframe
+            src="https://www.youtube.com/embed/YucSWdUXrd8"
+            title="Smart budgeting tips - 50/30/20 Rule"
+            loading="lazy"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Budget dialog -->
+  <dialog id="budgetDialog" aria-labelledby="budgetTitle">
+    <form id="budgetForm" novalidate>
+      <h2 id="budgetTitle">Set monthly budget</h2>
+      <label>Budget (KES)
+        <input id="budgetInput" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 30000" aria-describedby="budgetError">
+        <small class="error" id="budgetError" aria-live="polite"></small>
+      </label>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" type="button" data-close>Cancel</button>
+        <button class="btn" type="submit">Save budget</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Profile dialog -->
+  <dialog id="profileDialog" aria-labelledby="profileTitle">
+    <form id="profileForm" novalidate>
+      <h2 id="profileTitle">Your name</h2>
+      <label>Name
+        <input id="profileInput" maxlength="20" placeholder="e.g. Amiir" autocomplete="given-name" aria-describedby="profileError">
+        <small class="error" id="profileError" aria-live="polite"></small>
+      </label>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" type="button" data-close>Cancel</button>
+        <button class="btn" type="submit">Save name</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast feedback -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span id="toastMsg"></span>
+    <button id="toastAction" type="button" hidden></button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
